@@ -557,7 +557,7 @@ public class MdfLibraryTest
             var fallbckConv = channelConv.CreateFallbackConversion();
             fallbckConv.Name = "Channel1ConvFallback";
             fallbckConv.Type = ConversionType.Linear;
-            fallbckConv.Parameter(0, 0.0);
+            fallbckConv.Parameter(0, 0.5);
             fallbckConv.Parameter(1, 2.0);
 
             writer.InitMeasurement();
@@ -607,8 +607,10 @@ public class MdfLibraryTest
             Assert.AreEqual(2, conv.NofParameters);
             Assert.AreEqual(1.0, conv.Parameter(1));
             
-            //Assert.IsNotNull(conv.FallbackConversion);
-            //Assert.AreEqual(conv.FallbackConversion.Type, ConversionType.Linear);
+            Assert.IsNotNull(conv.FallbackConversion);
+            Assert.AreEqual(ConversionType.Linear, conv.FallbackConversion.Type);
+            Assert.AreEqual(0.5, conv.FallbackConversion.Parameter(0));
+            Assert.AreEqual(2, conv.FallbackConversion.Parameter(1));
         }
     }
 

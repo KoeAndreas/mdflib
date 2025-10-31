@@ -85,7 +85,7 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
 
 
  protected:
-  void Reference(uint16_t index, std::unique_ptr<Cc4Block> &cc4);
+  void Reference(uint16_t index, Cc4Block* cc4);
 
   bool ConvertValueToText(double channel_value,
                           std::string& eng_value) const override;
