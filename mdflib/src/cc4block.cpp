@@ -108,10 +108,9 @@ void Cc4Block::Decimals(uint8_t decimals) {
 }
 
 uint8_t Cc4Block::Decimals() const {
-  const auto max = static_cast<uint8_t>(
-                              std::numeric_limits<double>::max_digits10);
-  return  flags_ & CcFlag::PrecisionValid ?
-                             precision_ : max;
+  const auto max =
+      static_cast<uint8_t>(std::numeric_limits<double>::max_digits10);
+  return flags_ & CcFlag::PrecisionValid ? precision_ : max;
 }
 
 bool Cc4Block::IsUnitValid() const { return Link(kIndexUnit) != 0; }
@@ -138,7 +137,7 @@ uint16_t Cc4Block::Flags() const { return flags_; }
 void Cc4Block::Flags(uint16_t flags) { flags_ = flags; }
 
 IChannelConversion* Cc4Block::CreateInverse() {
-  cc_block_= std::make_unique<Cc4Block>();
+  cc_block_ = std::make_unique<Cc4Block>();
   cc_block_->Init(*this);
   return cc_block_.get();
 }
@@ -147,7 +146,7 @@ IChannelConversion* Cc4Block::Inverse() const {
   return cc_block_ ? cc_block_.get() : nullptr;
 }
 
-IChannelConversion *Cc4Block::CreateConversion() {
+IChannelConversion* Cc4Block::CreateConversion() {
   if (!cc2_block_) {
     cc2_block_ = std::make_unique<Cc4Block>();
     cc2_block_->Init(*this);
@@ -176,8 +175,8 @@ void Cc4Block::GetBlockProperty(BlockPropertyList& dest) const {
                     "Link to inverse formula", BlockItemType::LinkItem);
   for (const auto& block : ref_list_) {
     if (!block) {
-
-      dest.emplace_back("Reference Link NIL", "0x00", "", BlockItemType::LinkItem);
+      dest.emplace_back("Reference Link NIL", "0x00", "",
+                        BlockItemType::LinkItem);
     } else if (block->BlockType() == "TX") {
       const auto* tx = dynamic_cast<const Tx4Block*>(block.get());
       dest.emplace_back("Reference Link TX", ToHexString(block->FilePosition()),
@@ -211,7 +210,7 @@ void Cc4Block::GetBlockProperty(BlockPropertyList& dest) const {
   for (uint16_t ii = 0; ii < static_cast<uint16_t>(value_list_.size()); ++ii) {
     std::ostringstream label;
     label << "Value " << ii;
-    dest.emplace_back(label.str(), ToString(Parameter(ii)) );
+    dest.emplace_back(label.str(), ToString(Parameter(ii)));
   }
   if (md_comment_) {
     md_comment_->GetBlockProperty(dest);
@@ -274,11 +273,19 @@ uint64_t Cc4Block::Read(std::streambuf& buffer) {  // NOLINT
         tx->Read(buffer);
         ref_list_.emplace_back(std::move(tx));
       } else if (block_type == "CC") {
-        auto cc = std::make_unique<Cc4Block>();
-        cc->Init(*this);
-        cc->ChannelDataType(channel_data_type_);
-        cc->Read(buffer);
-        ref_list_.emplace_back(std::move(cc));
+        if (ii == nof_references_-1) {
+          cc2_block_ = std::make_unique<Cc4Block>();
+          cc2_block_->Init(*this);
+          cc2_block_->ChannelDataType(channel_data_type_);
+          cc2_block_->Read(buffer);
+        } else {
+          auto cc = std::make_unique<Cc4Block>();
+          cc->Init(*this);
+          cc->ChannelDataType(channel_data_type_);
+          cc->Read(buffer);
+          ref_list_.emplace_back(std::move(cc));
+        }
+
       } else {
         ref_list_.emplace_back(std::unique_ptr<MdfBlock>());
       }
@@ -293,9 +300,7 @@ uint64_t Cc4Block::Write(std::streambuf& buffer) {  // NOLINT
     return static_cast<size_t>(block_length_);
   }
 
-  if(cc2_block_ != nullptr) {
-      Reference(static_cast<uint16_t>(ref_list_.size()),cc2_block_);
-  }
+  Reference(static_cast<uint16_t>(ref_list_.size()), cc2_block_.get());
 
   nof_references_ = static_cast<uint16_t>(ref_list_.size());
   nof_values_ = static_cast<uint16_t>(value_list_.size());
@@ -463,7 +468,7 @@ bool Cc4Block::ConvertTextToValue(const std::string& channel_value,
     return false;
   }
   // Initialize to default value index
-  auto value_index = static_cast<uint16_t>(value_list_.size() - 1);  
+  auto value_index = static_cast<uint16_t>(value_list_.size() - 1);
   for (uint16_t n = 0; n < nof_values_; ++n) {
     if (n >= ref_list_.size()) {
       break;
@@ -550,8 +555,8 @@ void Cc4Block::Formula(const std::string& formula) {
 }
 
 const std::string& Cc4Block::Formula() const {
-  const auto* tx4 = ref_list_.empty() ? nullptr :
-                                dynamic_cast<Tx4Block*>(ref_list_[0].get());
+  const auto* tx4 =
+      ref_list_.empty() ? nullptr : dynamic_cast<Tx4Block*>(ref_list_[0].get());
   if (tx4 != nullptr) {
     formula_ = tx4->Text();
   } else {
@@ -561,12 +566,14 @@ const std::string& Cc4Block::Formula() const {
 }
 
 [[nodiscard]] uint16_t Cc4Block::NofReferences() const {
-  return nof_references_;  
+  return nof_references_;
 }
 
-void Cc4Block::Reference(uint16_t index, std::unique_ptr<Cc4Block> &cc4) {
-  while (index >= ref_list_.size()) {
-    ref_list_.emplace_back(std::move(cc4));
+void Cc4Block::Reference(uint16_t index, Cc4Block* cc4) {
+  if (cc4) {
+    while (index >= ref_list_.size()) {
+      ref_list_.emplace_back(cc4);
+    }
   }
 }
 
@@ -582,17 +589,16 @@ void Cc4Block::Reference(uint16_t index, const std::string& text) {
 }
 
 std::string Cc4Block::Reference(uint16_t index) const {
-  const auto* block = index < ref_list_.size() ?
-      ref_list_[index].get() : nullptr;
+  const auto* block =
+      index < ref_list_.size() ? ref_list_[index].get() : nullptr;
   if (block == nullptr || block->BlockType() != "TX") {
     return {"Not TX"};
   }
-  const auto* tx4 = dynamic_cast<const Tx4Block*> (block);
+  const auto* tx4 = dynamic_cast<const Tx4Block*>(block);
   if (tx4 != nullptr) {
     return tx4->Text();
   }
   return {"Invalid"};
-
 }
 
 void Cc4Block::SetCcUnit(const CcUnit& unit) {
