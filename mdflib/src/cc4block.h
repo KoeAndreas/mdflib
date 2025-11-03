@@ -62,14 +62,11 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
     return MdfBlock::MetaData();
   }
 
-  [[nodiscard]] IChannelConversion* CreateConversion() override;
-  [[nodiscard]] IChannelConversion* Conversion() const override;
-
-  [[nodiscard]] const Cc4Block* Cc2() const { return cc2_block_.get(); }
   [[nodiscard]] const Cc4Block* Cc() const { return cc_block_.get(); }
 
   [[nodiscard]] uint16_t NofReferences() const override;
   void Reference(uint16_t index, const std::string& text) override;
+  void Reference(uint16_t index, double factor, double offset) override;
   [[nodiscard]] std::string Reference(uint16_t index) const override;
   
   [[nodiscard]] const RefList& References() const { return ref_list_; }
@@ -85,8 +82,6 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
 
 
  protected:
-  void Reference(uint16_t index, Cc4Block* cc4);
-
   bool ConvertValueToText(double channel_value,
                           std::string& eng_value) const override;
   bool ConvertValueRangeToText(double channel_value,
@@ -106,7 +101,6 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
   double range_max_ = 0;
 
   std::string name_;
-  std::unique_ptr<Cc4Block> cc2_block_; ///< conversion of conversion block (value table type)
   std::unique_ptr<Cc4Block> cc_block_;  ///< Inverse conversion block
   std::unique_ptr<Md4Block> unit_;
   RefList ref_list_;

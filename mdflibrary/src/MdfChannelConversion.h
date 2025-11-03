@@ -61,7 +61,6 @@ public:
 
   property UInt16 Flags { UInt16 get(); void set(UInt16 flags); }
   property MdfChannelConversion^ Inverse { MdfChannelConversion^ get(); }
-  property MdfChannelConversion^ FallbackConversion { MdfChannelConversion^ get(); }
   property MdfMetaData^ MetaData { MdfMetaData^ get(); }
   property String^ Formula { String^ get(); void set(String^ formula); }
 
@@ -72,14 +71,12 @@ public:
   uint64_t ParameterUInt( uint16_t index);
   void ParameterUInt(uint16_t index, uint64_t parameter);
   
-  
   property uint16_t NofReferences { uint16_t get();  }
   String^ Reference( uint16_t index);
   void Reference(uint16_t index, String^ reference);
-  
+  void Reference(uint16_t index, double factor, double offset);
   
   MdfChannelConversion^ CreateInverse();
-  MdfChannelConversion^ CreateFallbackConversion();
   MdfMetaData^ CreateMetaData();
 private:
   MdfChannelConversion() {};
