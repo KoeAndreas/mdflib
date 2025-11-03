@@ -115,12 +115,6 @@ MdfChannelConversion^ MdfChannelConversion::Inverse::get() {
   return temp != nullptr ? gcnew MdfChannelConversion(temp) : nullptr;
 }
 
-MdfChannelConversion^ MdfChannelConversion::FallbackConversion::get() {
-  auto* temp = conversion_ != nullptr ?
-    const_cast<mdf::IChannelConversion*>(conversion_->Conversion()) : nullptr;
-  return temp != nullptr ? gcnew MdfChannelConversion(temp) : nullptr;
-}
-
 MdfMetaData^ MdfChannelConversion::MetaData::get() {
   auto* temp = conversion_ != nullptr ?
     conversion_->MetaData() : nullptr;
@@ -130,12 +124,6 @@ MdfMetaData^ MdfChannelConversion::MetaData::get() {
 MdfChannelConversion^ MdfChannelConversion::CreateInverse() {
   auto* temp = conversion_ != nullptr ?
     conversion_->CreateInverse() : nullptr;
-  return gcnew MdfChannelConversion(temp);  
-}
-
-MdfChannelConversion^ MdfChannelConversion::CreateFallbackConversion() {
-  auto* temp = conversion_ != nullptr ?
-    conversion_->CreateConversion() : nullptr;
   return gcnew MdfChannelConversion(temp);  
 }
 
@@ -199,6 +187,12 @@ void MdfChannelConversion::Reference(uint16_t index, String^ reference) {
   if (conversion_ != nullptr) {
     conversion_->Reference(index,
       MdfLibrary::Utf8Conversion(reference));
+  }  
+}
+
+void MdfChannelConversion::Reference(uint16_t index, double factor, double offset) {
+  if (conversion_ != nullptr) {
+    conversion_->Reference(index, factor, offset);
   }  
 }
 

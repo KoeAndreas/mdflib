@@ -13,11 +13,6 @@ IChannelConversion *IChannelConversion::CreateInverse() { return nullptr; }
 IChannelConversion *IChannelConversion::Inverse() const {
   return nullptr; }
 
-IChannelConversion *IChannelConversion::CreateConversion() { return nullptr; }
-
-IChannelConversion *IChannelConversion::Conversion() const {
-  return nullptr; }
-
 void IChannelConversion::Flags(uint16_t flags) {}
 
 uint16_t IChannelConversion::Flags() const { return 0; }
@@ -383,6 +378,10 @@ uint16_t IChannelConversion::NofReferences() const {
 }
 
 void IChannelConversion::Reference(uint16_t index, const std::string &text) {
+   // Not supported function for MDF3 
+}
+
+void IChannelConversion::Reference(uint16_t index, double factor, double offset) {
    // Not supported function for MDF3 
 }
 

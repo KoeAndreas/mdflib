@@ -173,12 +173,6 @@ class IChannelConversion : public IBlock {
   /** \brief Returns the inverse conversion block. Seldom in use. */
   [[nodiscard]] virtual IChannelConversion* Inverse() const;
 
-  /** \brief Creates an conversion block. */
-  [[nodiscard]] virtual IChannelConversion* CreateConversion();
-
-  /** \brief Returns the conversion block. Seldom in use. */
-  [[nodiscard]] virtual IChannelConversion* Conversion() const;
-
   virtual void Range(double min, double max); ///< Sets the range.
   [[nodiscard]] virtual std::optional<std::pair<double, double>> Range()
       const; ///< Returns the range if exist.
@@ -239,6 +233,8 @@ class IChannelConversion : public IBlock {
    * @param text Text content of the TX block.
    */
   virtual void Reference(uint16_t index, const std::string& text);
+
+  virtual void Reference(uint16_t index, double factor, double offset);
 
   /** \brief Returns the reference string by its index */ 
   [[nodiscard]] virtual std::string Reference(uint16_t index) const;

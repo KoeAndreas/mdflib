@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Net;
 using Windows.Devices.Display.Core;
-using Microsoft.VisualBasic.FileIO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WinRT;
 
@@ -491,7 +490,7 @@ public class MdfLibraryTest
     [TestMethod]
     public void TestChannelConversion()
     {
-        var testFile = Path.Combine(_testDirectory, "channel_conversion.mf4");
+        var testFile = Path.Combine("C:\\Development\\TDS-PC\\DataAnalyzer.DemoApp\\bin\\x64\\Debug\\Data", "channel_conversion.mf4");
         if (File.Exists(testFile))
         {
             File.Delete(testFile);
@@ -539,7 +538,7 @@ public class MdfLibraryTest
             channel.Name = "Channel1";
             channel.DataBytes = 1;
             channel.Type = ChannelType.FixedLength;
-            channel.DataType = ChannelDataType.UnsignedIntegerBe;
+            channel.DataType = ChannelDataType.UnsignedIntegerLe;
 
 
             var channelConv = channel.CreateChannelConversion();
@@ -550,20 +549,15 @@ public class MdfLibraryTest
             // No Inverse
             channelConv.Reference(0, "Zero");
             channelConv.Reference(1, "One");
+            channelConv.Reference(2, 4, 0);
 
             channelConv.Parameter(0, 0.0);
             channelConv.Parameter(1, 1.0);
 
-            var fallbckConv = channelConv.CreateFallbackConversion();
-            fallbckConv.Name = "Channel1ConvFallback";
-            fallbckConv.Type = ConversionType.Linear;
-            fallbckConv.Parameter(0, 0.5);
-            fallbckConv.Parameter(1, 2.0);
-
             writer.InitMeasurement();
             writer.StartMeasurement(startTime);
             var stopTime = startTime;
-            for (var sample = 0; sample < 3; ++sample)
+            for (var sample = 0; sample <= 5; ++sample)
             {
                 channel.SetChannelValue(sample);
                 writer.SaveSample(channelGroup, stopTime);
@@ -580,8 +574,8 @@ public class MdfLibraryTest
             var file = reader.File;
             var header = file.Header;
             var datagroup = header.LastDataGroup;
-            var group = datagroup.ChannelGroups[0];
-            var channel = group.Channels[0];
+            var channelgroup = datagroup.ChannelGroups[0];
+            var channel = channelgroup.Channels[0];
             var conv = channel.ChannelConversion;
 
             Assert.IsNotNull(conv);
@@ -603,15 +597,67 @@ public class MdfLibraryTest
 
             Assert.AreEqual(3, conv.NofReferences);
             Assert.AreEqual("Zero", conv.Reference(0));
+            Assert.AreEqual("One", conv.Reference(1));
 
             Assert.AreEqual(2, conv.NofParameters);
+            Assert.AreEqual(0.0, conv.Parameter(0));
             Assert.AreEqual(1.0, conv.Parameter(1));
-            
-            Assert.IsNotNull(conv.FallbackConversion);
-            Assert.AreEqual(ConversionType.Linear, conv.FallbackConversion.Type);
-            Assert.AreEqual(0.5, conv.FallbackConversion.Parameter(0));
-            Assert.AreEqual(2, conv.FallbackConversion.Parameter(1));
+
+            var sub = MdfLibrary.CreateChannelObserver(datagroup, channelgroup, channel);
+
+            ulong rawValueUnsigned = 0;
+            double rawValueFloat = 0;
+            string rawValueString = string.Empty;
+            ulong engValueUnsigned = 0;
+            double engValueFloat = 0;
+            string engValueString = string.Empty;
+
+            var rdDataGroup = reader.ReadData(datagroup);
+
+            ReadChannelValue(sub, 0, ref rawValueUnsigned, ref rawValueFloat, ref rawValueString, ref engValueUnsigned, ref engValueFloat, ref engValueString);
+            Assert.AreEqual((ulong)0, rawValueUnsigned);
+            Assert.AreEqual(0.0, rawValueFloat);
+            Assert.AreEqual("0", rawValueString);
+            Assert.AreEqual((ulong)0, engValueUnsigned);
+            Assert.AreEqual(0.0, engValueFloat);
+            Assert.AreEqual("Zero", engValueString);
+
+            ReadChannelValue(sub, 1, ref rawValueUnsigned, ref rawValueFloat, ref rawValueString, ref engValueUnsigned, ref engValueFloat, ref engValueString);
+            Assert.AreEqual((ulong)1, rawValueUnsigned);
+            Assert.AreEqual(1.0, rawValueFloat);
+            Assert.AreEqual("1", rawValueString);
+            Assert.AreEqual((ulong)0, engValueUnsigned);
+            Assert.AreEqual(0.0, engValueFloat);
+            Assert.AreEqual("One", engValueString);
+
+            ReadChannelValue(sub, 2, ref rawValueUnsigned, ref rawValueFloat, ref rawValueString, ref engValueUnsigned, ref engValueFloat, ref engValueString);
+            Assert.AreEqual((ulong)2, rawValueUnsigned);
+            Assert.AreEqual(2.0, rawValueFloat);
+            Assert.AreEqual("2", rawValueString);
+            Assert.AreEqual((ulong)8, engValueUnsigned);
+            Assert.AreEqual(8.0, engValueFloat);
+            Assert.AreEqual("8", engValueString);
+
+            ReadChannelValue(sub, 5, ref rawValueUnsigned, ref rawValueFloat, ref rawValueString, ref engValueUnsigned, ref engValueFloat, ref engValueString);
+            Assert.AreEqual((ulong)5, rawValueUnsigned);
+            Assert.AreEqual(5.0, rawValueFloat);
+            Assert.AreEqual("5", rawValueString);
+            Assert.AreEqual((ulong)20, engValueUnsigned);
+            Assert.AreEqual(20.0, engValueFloat);
+            Assert.AreEqual("20", engValueString);
         }
+    }
+
+    public void ReadChannelValue(MdfChannelObserver sub, ulong index, 
+        ref ulong rawValueUnsigned, ref double rawValueFloat, ref string rawValueString,
+        ref ulong engValueUnsigned, ref double engValueFloat, ref string engValueString)
+    {
+        sub.GetChannelValueAsUnsigned(index, ref rawValueUnsigned);
+        sub.GetEngValueAsUnsigned(index, ref engValueUnsigned);
+        sub.GetChannelValueAsFloat(index, ref rawValueFloat);
+        sub.GetEngValueAsFloat(index, ref engValueFloat);
+        sub.GetChannelValueAsString(index, ref rawValueString);
+        sub.GetEngValueAsString(index, ref engValueString);
     }
 
     [TestMethod]
