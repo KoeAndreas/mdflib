@@ -301,6 +301,14 @@ void Hd4Block::ReadEverythingButData(std::streambuf& buffer) {
 
 int64_t Hd4Block::Index() const { return FilePosition(); }
 
+void Hd4Block::CommonProperty(const std::string& propertyName, const std::string& propertyValue) {
+  SetCommonProperty(*this, propertyName, propertyValue);
+}
+
+std::string Hd4Block::CommonProperty(const std::string& propertyName) const {
+  return GetCommonProperty<std::string>(*this, propertyName);
+}
+
 void Hd4Block::Author(const std::string& author) {
   SetCommonProperty(*this, "author", author);
 }

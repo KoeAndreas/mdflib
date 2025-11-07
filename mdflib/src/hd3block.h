@@ -26,6 +26,10 @@ class Hd3Block : public MdfBlock, public IHeader {
   [[nodiscard]] std::string BlockType() const override {
     return MdfBlock::BlockType();
   }
+
+  void CommonProperty(const std::string& propertyName, const std::string& propertyValue) override;
+  [[nodiscard]] std::string CommonProperty(const std::string& propertyName) const override;
+
   void Author(const std::string &author) override;
   [[nodiscard]] std::string Author() const override;
 

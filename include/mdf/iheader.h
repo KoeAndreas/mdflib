@@ -35,6 +35,23 @@ class IDataGroup;
  */
 class IHeader : public IBlock {
  public:
+
+  /** \brief Sets CommonProperty defined by propertyName (used for e.g. dbc file name information).
+   *
+   * Sets any CommonProperty.
+   * @param propertyName Name of the property.
+   * @param propertyValue Value of the property.
+   */
+  virtual void CommonProperty(const std::string& propertyName, const std::string& propertyValue) = 0;
+
+  /** \brief Returns CommonProperty as string.
+   *
+   * Returns CommonProperty as string.
+   * @param propertyName Name of the property.
+   * @return Value of property.
+   */
+  [[nodiscard]] virtual std::string CommonProperty(const std::string& propertyName) const = 0;
+
   /** \brief Sets the author of the file.
    *
    * Sets the author of the files.
