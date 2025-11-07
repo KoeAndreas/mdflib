@@ -15,6 +15,16 @@ MdfHeader::MdfHeader(mdf::IHeader* header)
   : header_(header) {
 }
 
+String^ MdfHeader::CommonProperty(String^ propertyName) {
+  return header_ != nullptr ? MdfLibrary::Utf8Conversion(header_->CommonProperty(MdfLibrary::Utf8Conversion(propertyName))) : gcnew String("");  
+}
+
+void MdfHeader::CommonProperty(String^ propertyName, String^ propertyValue) {
+if (header_ != nullptr) {
+    header_->CommonProperty(MdfLibrary::Utf8Conversion(propertyName), MdfLibrary::Utf8Conversion(propertyValue));
+  }   
+}
+
 String^ MdfHeader::Description::get() {
   return header_ != nullptr ? MdfLibrary::Utf8Conversion(header_->Description()) : gcnew String("");
 }

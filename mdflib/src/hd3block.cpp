@@ -246,6 +246,15 @@ void Hd3Block::ReadEverythingButData(std::streambuf& buffer) {
 
 int64_t Hd3Block::Index() const { return FilePosition(); }
 
+void Hd3Block::CommonProperty(const std::string& propertyName, const std::string& propertyValue) {
+  // Not supported function for MDF3 
+}
+
+std::string Hd3Block::CommonProperty(const std::string& propertyName) const {
+    // Not supported function for MDF3 
+  return {};
+}
+
 void Hd3Block::Author(const std::string &author) { author_ = author; }
 
 std::string Hd3Block::Author() const { return author_; }

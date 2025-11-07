@@ -41,6 +41,9 @@ public:
   property array<MdfDataGroup^>^ DataGroups { array<MdfDataGroup^>^ get(); }
   property MdfDataGroup^ LastDataGroup { MdfDataGroup^ get();} 
 
+  void CommonProperty(String^ propertyName, String^ propertyValue);
+  String^ CommonProperty(String^ propertyName);
+
   MdfAttachment^ CreateAttachment();
   MdfFileHistory^ CreateFileHistory();
   MdfEvent^ CreateEvent();
