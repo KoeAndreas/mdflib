@@ -555,9 +555,13 @@ void Cc4Block::Reference(uint16_t index, double factor, double offset) {
     cc4->Init(*this);
     cc4->ChannelDataType(channel_data_type_);
 
-    cc4->Type(ConversionType::Linear);
-    cc4->Parameter(0, offset);
-    cc4->Parameter(1, factor);
+    if (AlmostEqual(factor, 1.0) && AlmostEqual(offset, 0.0)) {
+      cc4->Type(ConversionType::NoConversion);
+    } else {
+      cc4->Type(ConversionType::Linear);
+      cc4->Parameter(0, offset);
+      cc4->Parameter(1, factor);
+    }
   }
 }
 
