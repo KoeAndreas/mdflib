@@ -5,7 +5,6 @@
 #pragma once
 #include <limits>
 #include <string>
-
 #include <vector>
 
 #include "md4block.h"
@@ -68,7 +67,7 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
   void Reference(uint16_t index, const std::string& text) override;
   void Reference(uint16_t index, double factor, double offset) override;
   [[nodiscard]] std::string Reference(uint16_t index) const override;
-  
+
   [[nodiscard]] const RefList& References() const { return ref_list_; }
 
   [[nodiscard]] MdfBlock* Find(int64_t index) const override;
@@ -77,9 +76,8 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
   uint64_t Read(std::streambuf& buffer) override;
   uint64_t Write(std::streambuf& buffer) override;
 
-  void Formula( const std::string& formula) override;
+  void Formula(const std::string& formula) override;
   [[nodiscard]] const std::string& Formula() const override;
-
 
  protected:
   bool ConvertValueToText(double channel_value,
@@ -90,6 +88,10 @@ class Cc4Block : public MdfBlock, public IChannelConversion {
                           double& eng_value) const override;
   bool ConvertTextToTranslation(const std::string& channel_value,
                                 std::string& eng_value) const override;
+
+  bool AlmostEqual(double a, double b) {
+    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+  }
 
  private:
   uint8_t type_ = 0;

@@ -242,7 +242,7 @@ MdfReader::MdfReader(std::string filename) : filename_(std::move(filename)) {
   // Need to create MDF3 of MDF4 file
   bool bExist = false;
   try {
-    fs::path p = fs::u8path(filename_);
+    fs::path p = fs::path(filename_);
     if (fs::exists(p)) {
       bExist = true;
     }
