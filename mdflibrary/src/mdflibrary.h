@@ -52,7 +52,6 @@ public:
     MdfDataGroup^ data_group);
 
   static String^ Utf8Conversion(const std::string& utf8_string);
-
   static std::string Utf8Conversion(String ^ string);
 
   void AddLog(MdfLogSeverity severity, String^ function, String^ message);

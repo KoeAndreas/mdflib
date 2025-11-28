@@ -9,7 +9,9 @@
 namespace MdfLibrary {
 
 MdfReader::MdfReader(String^ filename) {
-  reader_ = new mdf::MdfReader(MdfLibrary::Utf8Conversion(filename));
+
+  auto fileSting = MdfLibrary::Utf8Conversion(filename);
+  reader_ = new mdf::MdfReader(fileSting);
 }
 
 

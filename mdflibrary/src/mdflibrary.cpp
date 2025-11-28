@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 2022 Ingemar Hedvall
  * SPDX-License-Identifier: MIT
  */
@@ -131,25 +131,11 @@ array<MdfChannelObserver^>^ MdfLibrary::CreateChannelObserverForDataGroup(
 }
 
 String^ MdfLibrary::Utf8Conversion(const std::string& utf8_string) {
-  array<byte>^ c_array =
-    gcnew array<byte>(static_cast<int>(utf8_string.length()));
-  for (size_t i = 0; i < utf8_string.length(); i++) {
-      c_array[static_cast<int>(i)] = utf8_string[i];
-  }
-
-  System::Text::Encoding^ u8enc = System::Text::Encoding::UTF8;
-  return u8enc->GetString(c_array);
+  return marshal_as<System::String^>(utf8_string);
 }
 
 std::string MdfLibrary::Utf8Conversion(String^ text) {
-
-  array<byte>^ c_array = System::Text::Encoding::UTF8->GetBytes(text);
-
-  std::string utf8_string;
-  utf8_string.resize(c_array->Length);
-  for (int i = 0; i < c_array->Length; i++) utf8_string[i] = c_array[i];
-  return utf8_string;
- 
+  return marshal_as<std::string>(text);
 }
 
 void MdfLibrary::AddLog(MdfLogSeverity severity, String ^ function,
